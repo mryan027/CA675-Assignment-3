@@ -1,11 +1,14 @@
-aws emr create-default-roles
+aws emr create-cluster --name test-8 
+--ami version=3.30
+--applications Name=Hue Name=Hive Name=Pig --region=eu-west-1
+--use-defaul-roles
+--ec2-attributes KeyName="haddoop"
+--no-auto-terminate
+--instance-groups 
+InstanceGroupType=MASTER,InstanceCount=1,InstanceType="m1.medium"
+InstanceGroupType=CORE,InstanceCount=2,InstanceType="m1.medium"
+--bootstrap-actions Nname=emR_bootstrap,Path="s3://assignment3app/hdep_setup.sh",Args=[--emrinstall,--rstudio,--hpaths,--rhadoop,--createuser,--sudouser,--sshuser]
+--steps Name=HDFS_tmp_permission,Jar="s3://elasticmapreduce/libs/script-runner/script-runner.jar",Args="s3://assignment3app/emr_permissions.sh
 
-ws emr create-cluster --name test_cluster --ami-version=3.2.1 --
-instance-groups InstanceGroupType=MASTER,InstanceCount=1,InstanceType=m1.large I
-nstanceGroupType=CORE,InstanceCount=2,InstanceType=m1.large --bootstrap-actions
-Path="s3://assignment3app/emR_bootstrap.sh",Name=CustomAction,Args=[--rstudio,re
-xamples--plyrmr,--rhdfs] --steps Name=HDFS_tmp_permission,Jar=s3://elasticmapred
-uce/libs/script-runner/script-runner.jar,Args="s3://assignment3app/hdfs_permissi
-on.sh --region eu-west-1 --ec2-attributes KeyName="hadoop.pem"
 
 aws emr list-clusters
