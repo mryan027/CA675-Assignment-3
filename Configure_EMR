@@ -2,7 +2,7 @@ aws emr create-cluster --name test-8
 --ami version=3.30
 --applications Name=Hue Name=Hive Name=Pig --region=eu-west-1
 --use-defaul-roles
---ec2-attributes KeyName="haddoop"
+--ec2-attributes KeyName="hadoop"
 --no-auto-terminate
 --instance-groups 
 InstanceGroupType=MASTER,InstanceCount=1,InstanceType="m1.medium"
