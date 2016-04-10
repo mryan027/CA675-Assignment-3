@@ -1,0 +1,13 @@
+--Split contents into its respective words
+
+DROP TABLE IF EXISTS wiki_split;
+
+CREATE TABLE wiki_split AS
+
+SELECT id, title, word, count(*) as word_count
+
+FROM wiki_with_headers
+
+LATERAL VIEW explode (split(lower(content), '\\w+')) t1 AS word
+
+GROUP BY word, id, title;
