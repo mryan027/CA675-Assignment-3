@@ -8,6 +8,6 @@ SELECT id, title, word, count(*) as word_count
 
 FROM wiki_with_headers
 
-LATERAL VIEW explode (split(lower(content), '\\w+')) t1 AS word
+LATERAL VIEW explode (split(lower(content), '\\W+')) t1 AS word
 
 GROUP BY word, id, title;
