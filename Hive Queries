@@ -2,7 +2,7 @@
 
 DROP TABLE IF EXISTS wiki_split;
 CREATE TABLE wiki_split AS
-SELECT title, word, count(*) as word_count
+SELECT title, id, word, count(*) as word_count
 FROM wiki_with_headers
 LATERAL VIEW explode (split(lower(content), '\\W+')) t1 AS word
-GROUP BY title, word;
+GROUP BY title, id, word;
