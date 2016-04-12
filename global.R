@@ -1,3 +1,2 @@
-# read-in csv files
-NationalNames <- read.csv("NationalNames.csv", header = TRUE)
-StateNames <- read.csv("StateNames.csv", header = TRUE)
+# read-in csv file of all names
+CombinedNames<- read.csv("CombinedNames.csv", header = TRUE)
