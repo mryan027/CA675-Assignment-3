@@ -1,3 +1,30 @@
+use wiki;
+drop table if exists wiki_data;
+
+-- Create a table for the raw wiki data
+create external table wiki_data (id STRING, content STRING)
+row format serde 'org.apache.hadoop.hive.serde2.OpenCSVSerde'
+stored as textfile
+location 'hdfs:/user/maria_dev/wiki';
+
+-- Create a table to include a list of article titles
+drop table if exists page_names;
+create external table page_names (id STRING, title STRING, start_num STRING, end_num STRING)
+row format delimited fields terminated by ',' lines terminated by '\n' stored as textfile
+location 'hdfs:/user/maria_dev/page';
+
+-- Join title information with respective articles
+drop table if exists wiki_with_headers;
+create table wiki_with_headers 
+
+as select * from
+(
+select a.id, a.content, b.title
+from wiki_data a
+left outer join page_names b
+on (substr(a.id,11) = b.id)
+) temp1;
+
 --Split contents into its respective words
 
 DROP TABLE IF EXISTS wiki_split;
