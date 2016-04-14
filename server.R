@@ -113,5 +113,41 @@ shinyServer(
       }
     })
     
+    
+    output$Top5ByYear = renderDataTable(datatable({
+      
+      FemaleCheckBox <- FemaleCheckBox()
+      MaleCheckBox <- MaleCheckBox()
+      
+      
+      #Top 5 by Year Function
+      top_year<-function(test_name, gender, state){
+        x<-(CombinedNames[which(CombinedNames$Name==test_name & 
+                                  CombinedNames$Gender==gender & 
+                                  CombinedNames$State==state),])
+        return(head(x[order(x$Count, decreasing=TRUE),],5, by =Year))}
+      
+      Top5Female <- top_year(input$name ,"F", input$state)
+      Top5Male <- top_year(input$name ,"M", input$state)
+      
+      if  (isTRUE(FemaleCheckBox)){
+        Top5Total <- Top5Female
+        if  (isTRUE(MaleCheckBox)){
+          Top5Total <- rbind(Top5Total, Top5Male)
+        }
+        
+        Top5Total[,-1]
+        
+      }else if (isTRUE(MaleCheckBox)){
+        Top5Total <- Top5Male
+        Top5Total[,-1]
+      }
+  
+      
+    }))
+    
+    
+    
+    
   }
 )
