@@ -1,6 +1,14 @@
-# read-in csv file of all names
+# install and load required packages
 #install.packages('DT')
+#install.packages('ggplot2')
+#install.packages('ggmap')
+#install.packages('openintro')
 library('DT')
-CombinedNames<- read.csv("CombinedNames.csv", header = TRUE)
-UniqueNames <- read.csv("UniqueNames.csv", header = TRUE)
-StateList <- read.csv("StateList.csv", header = TRUE)
+library(ggplot2)
+library(ggmap)
+library(openintro)
+
+# read-in csv file of all names
+CombinedNames <- readRDS("CombinedNames.rds")
+UniqueNames <- readRDS("UniqueNames.rds")
+StateList <- readRDS("StateList.rds")
