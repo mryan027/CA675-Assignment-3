@@ -41,3 +41,9 @@ SELECT title,
 SUM(word_count) AS total_words
 FROM wiki_split
 GROUP BY title;
+
+--upload national names database
+create external table national_names (id STRING, name STRING, year STRING, gender STRING, count int)
+row format serde 'org.apache.hadoop.hive.serde2.OpenCSVSerde'
+stored as textfile
+location 'hdfs:/user/maria_dev/nationalnames';
