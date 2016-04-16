@@ -58,4 +58,4 @@ location 'hdfs:/user/maria_dev/nationalnames';
 --alter national_names table so that names are lower case to enable joining with wiki_split
 DROP TABLE IF EXISTS national_names_lower;
 CREATE TABLE national_names_lower AS
-Select lower(name) from national_names;
+Select lower(name) as name_lower from national_names;
