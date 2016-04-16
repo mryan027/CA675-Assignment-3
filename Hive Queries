@@ -59,3 +59,10 @@ location 'hdfs:/user/maria_dev/nationalnames';
 DROP TABLE IF EXISTS national_names_lower;
 CREATE TABLE national_names_lower AS
 Select lower(name) as name_lower from national_names;
+
+--join wiki_split table and national_name_lower table
+DROP TABLE IF EXISTS wiki_split_name;
+CREATE TABLE wiki_split_name AS
+SELECT c.title, c.word, c.word_count, o.name_lower
+FROM wiki_split c JOIN national_names_lower o 
+ON (c.word = o.name_lower);
