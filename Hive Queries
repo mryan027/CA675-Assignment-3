@@ -54,3 +54,8 @@ create external table national_names (id STRING, name STRING, year STRING, gende
 row format serde 'org.apache.hadoop.hive.serde2.OpenCSVSerde'
 stored as textfile
 location 'hdfs:/user/maria_dev/nationalnames';
+
+--alter national_names table so that names are lower case to enable joining with wiki_split
+DROP TABLE IF EXISTS national_names_lower;
+CREATE TABLE national_names_lower AS
+Select lower(name) from national_names;
