@@ -30,6 +30,13 @@ on (substr(a.id,11) = b.id)
 DROP TABLE IF EXISTS wiki_split;
 CREATE TABLE wiki_split AS
 SELECT title, word, count(*) as word_count
+
+--join national names and wiki_split table
+DROP TABLE IF EXISTS wiki_split_name;
+CREATE TABLE wiki_split_name AS
+SELECT c.title, c.word, c.word_count, o.name
+FROM wiki_split c JOIN national_names o 
+ON (c.word = o.name);
 FROM wiki_with_headers
 LATERAL VIEW explode (split(lower(content), '\\W+')) t1 AS word
 GROUP BY title, word;
