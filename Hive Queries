@@ -29,7 +29,15 @@ on (substr(a.id,11) = b.id)
 
 DROP TABLE IF EXISTS wiki_split;
 CREATE TABLE wiki_split AS
-SELECT title, id, word, count(*) as word_count
+SELECT title, word, count(*) as word_count
 FROM wiki_with_headers
 LATERAL VIEW explode (split(lower(content), '\\W+')) t1 AS word
-GROUP BY title, id, word;
+GROUP BY title, word;
+
+--Count number of words in each title
+drop table if exists wiki_word_count;
+create table wiki_word_count as 
+SELECT title,
+SUM(word_count) AS total_words
+FROM wiki_split
+GROUP BY title;
