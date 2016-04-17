@@ -3,6 +3,7 @@ shinyServer(
 
     titlePanel("Baby Names Application"),
     
+    # set-up objects for user input
     fluidRow(
       column(3,
              selectizeInput("name", "Name", choices = NULL),
@@ -18,6 +19,7 @@ shinyServer(
       )
     ),
     
+    # display output for various user queries
     mainPanel(
       tabsetPanel(
         tabPanel("Gender Mix", plotOutput("Neutrality")),
@@ -26,7 +28,7 @@ shinyServer(
         tabPanel("Bottom 10 Names",dataTableOutput("Bottom10Names")),
         tabPanel("Top 5 States",dataTableOutput("Top5ByState")),
         tabPanel("Top 5 Years", dataTableOutput("Top5ByYear")),
-        tabPanel("Wiki"),
+        tabPanel("Wiki", dataTableOutput("WikiData")),
         tabPanel("Map", plotOutput("MapPlot"))
       )
     )
