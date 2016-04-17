@@ -55,14 +55,14 @@ row format serde 'org.apache.hadoop.hive.serde2.OpenCSVSerde'
 stored as textfile
 location 'hdfs:/user/maria_dev/nationalnames';
 
---alter national_names table so that names are lower case to enable joining with wiki_split
-DROP TABLE IF EXISTS national_names_lower;
-CREATE TABLE national_names_lower AS
+--alter national_names table so that names are lower case and unique to enable joining with wiki_split
+DROP TABLE IF EXISTS unique_names_lower;
+CREATE TABLE unique_names_lower AS
 Select lower(distinct name) as name_lower from national_names;
 
---join wiki_split table and national_name_lower table
+--join wiki_split table and unique_name_lower table
 DROP TABLE IF EXISTS wiki_split_name;
 CREATE TABLE wiki_split_name AS
 SELECT c.title, c.word, c.word_count, o.name_lower
-FROM wiki_split c JOIN national_names_lower o 
+FROM wiki_split c JOIN unique_names_lower o 
 ON (c.word = o.name_lower);
