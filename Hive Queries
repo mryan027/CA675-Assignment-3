@@ -79,3 +79,17 @@ CREATE table wiki_name_prop AS
 SELECT title, word, name_lower, word_count, total_words,
 ((word_count/total_words)*100) AS name_frequency
 FROM wiki_joined;
+
+--identify the top 10 titles per name
+--Create new table word_prop_limit
+CREATE Table word_prop_limit AS
+--Assign a rank to each title to enable the top 10 titles to be extracted
+SELECT * FROM
+(
+SELECT *, row_number () OVER(PARTITION BY name_lower ORDER BY name_frequency DESC) as num
+FROM wiki_name_prop
+) X
+--only emit the top 10
+WHERE num <= 10
+--order a-z with highest to lowest name_frequency
+ORDER BY name_lower ASC, num ASC;
