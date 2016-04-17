@@ -37,28 +37,28 @@ shinyServer(
         NameMale <- NameMale()
         NameFemale <- NameFemale()
         
-        # get the proportion of names for each gender
-        TotalMale <- 100 * round(sum(NameMale$Count)/ (sum(NameMale$Count) +  sum(NameFemale$Count)),4)
-        TotalFemale <- 100 * round(sum(NameFemale$Count)/ (sum(NameMale$Count) +  sum(NameFemale$Count)),4)
-        
-        # assign a dynamic name for input to the pie chart
-        if (TotalMale != 0){
-          InputName <- as.character(NameMale$Name[1])
-        }else if (TotalFemale != 0){
-          InputName <- as.character(NameFemale$Name[1])
+        if ((length(NameMale[,1]) == 0) && (length(NameFemale[,1]) == 0)){
+          plot(c(0, 1), c(0, 1), ann = F, bty = 'n', type = 'n', xaxt = 'n', yaxt = 'n')
+          text(x=0.5, y=1, "No Records for Given Name")
         }else{
-          InputName <- "Error"
-        }
-        
-        # output pie chart (if allowed)
-        if (InputName != "Error"){
-          pie(main= paste("Proportion of", InputName, "by Gender"),
-              c(TotalFemale, TotalMale), labels = c(paste(TotalFemale,"%", sep=""), 
-                                                    paste(TotalMale,"%", sep="")),
-              col = c("Pink", "Blue"))
-          legend("topleft", c("Female", "Male"), fill = c("Pink", "Blue"), cex=0.8)
-        }else{
-          print("No Records for Given Name")
+          # get the proportion of names for each gender
+          TotalMale <- 100 * round(sum(NameMale$Count)/ (sum(NameMale$Count) +  sum(NameFemale$Count)),4)
+          TotalFemale <- 100 * round(sum(NameFemale$Count)/ (sum(NameMale$Count) +  sum(NameFemale$Count)),4)
+          
+          # assign a dynamic name for input to the pie chart
+          if (TotalMale != 0){
+            InputName <- as.character(NameMale$Name[1])
+          }else{
+            InputName <- as.character(NameFemale$Name[1])
+          }
+          
+          # output pie chart
+            pie(main= paste("Proportion of", InputName, "by Gender"),
+                c(TotalFemale, TotalMale), labels = c(paste(TotalFemale,"%", sep=""), 
+                                                      paste(TotalMale,"%", sep="")),
+                col = c("Pink", "Blue"))
+            
+            legend("topleft", c("Female", "Male"), fill = c("Pink", "Blue"), cex=0.8)
         }
       
     })
@@ -74,7 +74,8 @@ shinyServer(
       
       # check if any records present before plotting
       if (length(NameFemale$Count) == 0 && length(NameMale$Count) == 0){
-        print("No Records for Given Name")
+        plot(c(0, 1), c(0, 1), ann = F, bty = 'n', type = 'n', xaxt = 'n', yaxt = 'n')
+        text(x=0.5, y=1, "No Records for Given Name")
       }else{
         
         if (length(NameFemale$Count) != 0){
@@ -274,29 +275,34 @@ shinyServer(
                                      CombinedNames$Year >= input$year[1] &
                                      CombinedNames$Year <= input$year[2]),]
       
-      agg_name <- aggregate(single_name$Count, by=list(single_name$State), FUN=sum)
-      names(agg_name) <- c("state", "count")
-      agg_name <- cbind(agg_name, tolower(abbr2state(agg_name$state)))
-      names(agg_name) <- c("state", "count", "region")
-      
-      if (length(agg_name[,1]) >= 50){
-        map_data <- merge(agg_name, us_state_map, by = 'region')
-        map_data <- arrange(map_data, order)
-        
-        states <- data.frame(state.center, state.abb)
-        names(states) <- c("long", "lat", "State")
-        
-        p1 <- ggplot(data = map_data, aes(x = long, y = lat, group = group))
-        p1 <- p1 + geom_polygon(aes(fill = cut_number(count/1000, 5)))
-        p1 <- p1 + scale_fill_brewer('Name Count in Thousands', 
-                                     palette  = 18)
-        p1 <- p1 + geom_text(data = states, aes(x = long, y = lat, label = State, group = NULL), size = 3)
-        p1 <- p1 + theme_bw()
-        print(p1)
+      if (as.integer(length(single_name[,1]) == 0)){
+        plot(c(0, 1), c(0, 1), ann = F, bty = 'n', type = 'n', xaxt = 'n', yaxt = 'n')
+        text(x=0.5, y=1, "Insufficient Data for Map")
       }else{
-        print("Insufficient Data for Map")
+        agg_name <- aggregate(single_name$Count, by=list(single_name$State), FUN=sum)
+        names(agg_name) <- c("state", "count")
+        agg_name <- cbind(agg_name, tolower(abbr2state(agg_name$state)))
+        names(agg_name) <- c("state", "count", "region")
+        
+        if (length(agg_name[,1]) >= 50){
+          map_data <- merge(agg_name, us_state_map, by = 'region')
+          map_data <- arrange(map_data, order)
+          
+          states <- data.frame(state.center, state.abb)
+          names(states) <- c("long", "lat", "State")
+          
+          p1 <- ggplot(data = map_data, aes(x = long, y = lat, group = group))
+          p1 <- p1 + geom_polygon(aes(fill = cut_number(count/1000, 5)))
+          p1 <- p1 + scale_fill_brewer('Name Count in Thousands', 
+                                       palette  = 18)
+          p1 <- p1 + geom_text(data = states, aes(x = long, y = lat, label = State, group = NULL), size = 3)
+          p1 <- p1 + theme_bw()
+          print(p1)
+        }else{
+          plot(c(0, 1), c(0, 1), ann = F, bty = 'n', type = 'n', xaxt = 'n', yaxt = 'n')
+          text(x=0.5, y=1, "Insufficient Data for Map")
+        }
       }
-    
     })
     
     # get the top (up to 10) articles for the specified name
