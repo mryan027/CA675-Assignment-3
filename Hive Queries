@@ -1,86 +1,113 @@
-use wiki;
-drop table if exists wiki_data;
+--Add a new Hive database for the queries
+
+CREATE DATABASE wiki;
+USE wiki;
+
 
 -- Create a table for the raw wiki data
-create external table wiki_data (id STRING, content STRING)
-row format serde 'org.apache.hadoop.hive.serde2.OpenCSVSerde'
-stored as textfile
-location 'hdfs:/user/maria_dev/wiki';
 
--- Create a table to include a list of article titles
-drop table if exists page_names;
-create external table page_names (id STRING, title STRING, start_num STRING, end_num STRING)
-row format delimited fields terminated by ',' lines terminated by '\n' stored as textfile
-location 'hdfs:/user/maria_dev/page';
+CREATE EXTERNAL TABLE wiki_data (id STRING, content STRING)
+ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.OpenCSVSerde'
+STORED AS TEXTFILE
+LOCATION 'hdfs:/user/maria_dev/wiki';
+
+
+-- Create a table to include a list of Wikipedia article titles
+
+DROP TABLE IF EXISTS page_names;
+CREATE EXTERNAL TABLE page_names (id STRING, title STRING, start_num STRING, end_num STRING)
+ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n' 
+STORED AS TEXTFILE
+LOCATION 'hdfs:/user/maria_dev/page';
+
+
+--upload national names database
+
+CREATE EXTERNAL TABLE national_names (id STRING, name STRING, year STRING, gender STRING, count int)
+ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.OpenCSVSerde'
+STORED AS TEXTFILE
+LOCATION 'hdfs:/user/maria_dev/nationalnames';
+
 
 -- Join title information with respective articles
-drop table if exists wiki_with_headers;
-create table wiki_with_headers 
 
-as select * from
+DROP TABLE IF EXISTS wiki_with_headers;
+CREATE TABLE wiki_with_headers 
+AS SELECT * from
 (
-select a.id, a.content, b.title
-from wiki_data a
-left outer join page_names b
-on (substr(a.id,11) = b.id)
+SELECT a.id, a.content, b.title
+FROM wiki_data a
+LEFT OUTER JOIN page_names b
+ON (substr(a.id,11) = b.id)
 ) temp1;
 
---Split contents into its respective words
+
+--Split contents of each  Wikipedia article into its respective words
 
 DROP TABLE IF EXISTS wiki_split;
 CREATE TABLE wiki_split AS
 SELECT title, word, count(*) as word_count
+FROM wiki_with_headers
+LATERAL VIEW explode (split(lower(content), '\\w+ ')) t1 AS word
+GROUP BY title, word;
+
+
 
 --join national names and wiki_split table
+
 DROP TABLE IF EXISTS wiki_split_name;
 CREATE TABLE wiki_split_name AS
 SELECT c.title, c.word, c.word_count, o.name
 FROM wiki_split c JOIN national_names o 
 ON (c.word = o.name);
 FROM wiki_with_headers
-LATERAL VIEW explode (split(lower(content), '\\W+')) t1 AS word
-GROUP BY title, word;
 
---Count number of words in each title
-drop table if exists wiki_word_count;
-create table wiki_word_count as 
+
+--Count number of words in each Wikipedia article
+
+DROP TABLE IF EXISTS wiki_word_count;
+CREATE TABLE wiki_word_count AS 
 SELECT title,
 SUM(word_count) AS total_words
 FROM wiki_split
 GROUP BY title;
 
---upload national names database
-create external table national_names (id STRING, name STRING, year STRING, gender STRING, count int)
-row format serde 'org.apache.hadoop.hive.serde2.OpenCSVSerde'
-stored as textfile
-location 'hdfs:/user/maria_dev/nationalnames';
+
 
 --alter national_names table so that names are lower case and unique to enable joining with wiki_split
+
 DROP TABLE IF EXISTS unique_names_lower;
 CREATE TABLE unique_names_lower AS
 Select lower(distinct name) as name_lower from national_names;
 
 --join wiki_split table and unique_name_lower table
+
 DROP TABLE IF EXISTS wiki_split_name;
 CREATE TABLE wiki_split_name AS
 SELECT c.title, c.word, c.word_count, o.name_lower
 FROM wiki_split c JOIN unique_names_lower o 
 ON (c.word = o.name_lower);
 
---join wiki_split_name and wiki_word_cout
+
+--join wiki_split_name and wiki_word_count
+
 DROP TABLE IF EXISTS wiki_joined;
 CREATE TABLE wiki_joined AS
 SELECT c.title, c.word, c.word_count, c.name_lower, o.total_words
 FROM wiki_word_split c JOIN wiki_word_count o 
 ON (c.title = o.title);
 
+
 --create table with name frequency %
+
 CREATE table wiki_name_prop AS
 SELECT title, word, name_lower, word_count, total_words,
 ((word_count/total_words)*100) AS name_frequency
 FROM wiki_joined;
 
+
 --identify the top 10 titles per name
+
 --Create new table word_prop_limit
 CREATE Table word_prop_limit AS
 --Assign a rank to each title to enable the top 10 titles to be extracted
