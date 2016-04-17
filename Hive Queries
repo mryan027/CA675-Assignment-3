@@ -73,3 +73,9 @@ CREATE TABLE wiki_joined AS
 SELECT c.title, c.word, c.word_count, c.name_lower, o.total_words
 FROM wiki_word_split c JOIN wiki_word_count o 
 ON (c.title = o.title);
+
+--create table with name frequency %
+CREATE table wiki_name_prop AS
+SELECT title, word, name_lower, word_count, total_words,
+((word_count/total_words)*100) AS name_frequency
+FROM wiki_joined;
