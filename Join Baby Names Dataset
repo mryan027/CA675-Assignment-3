@@ -1,0 +1,29 @@
+-- script to combine Baby Name text files (at state level with one per state)
+d C:\Users\lvanrheena007\Documents\DCU\CA675 Cloud\State Data
+for %f in (*.txt) do type "%f" >> State_Cleaned.txt
+
+--script to combine Baby Name text files (at national level with 1 per year)
+cd C:\Users\lvanrheena007\Documents\DCU\CA675 Cloud\National Data
+@ECHO OFF
+ECHO Creating %1...
+SET "sourcedir=C:\Users\lvanrheena007\Documents\DCU\CA675 Cloud\National Data"
+FOR /F "delims=" %%G IN ('DIR /B /a-d "%sourcedir%\*.txt"') DO (
+ECHO Adding %%G
+ECHO. >> National_Cleaned.txt
+for /f "usebackq tokens=*" %%a in ("%sourcedir%\%%~G") do (
+Echo %%a,%%G >> National_Cleaned.txt 
+)
+) 
+
+--Additional data cleaningto convert the file name now appended to each row into the year (completed in Notepad++)
+Filenames: yobYYYY.txt
+Find: ,yob
+Replace with: ,
+Find: .txt
+Replace with:
+
+--remove blank rows from combined text file
+Find: \n\r
+Replace with:
+
+
