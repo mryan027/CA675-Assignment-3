@@ -32,34 +32,35 @@ shinyServer(
 
     # gender balance pie-chart
     output$Neutrality <- renderPlot({
+    
+        # reference from the reactive function above
+        NameMale <- NameMale()
+        NameFemale <- NameFemale()
+        
+        # get the proportion of names for each gender
+        TotalMale <- 100 * round(sum(NameMale$Count)/ (sum(NameMale$Count) +  sum(NameFemale$Count)),4)
+        TotalFemale <- 100 * round(sum(NameFemale$Count)/ (sum(NameMale$Count) +  sum(NameFemale$Count)),4)
+        
+        # assign a dynamic name for input to the pie chart
+        if (TotalMale != 0){
+          InputName <- as.character(NameMale$Name[1])
+        }else if (TotalFemale != 0){
+          InputName <- as.character(NameFemale$Name[1])
+        }else{
+          InputName <- "Error"
+        }
+        
+        # output pie chart (if allowed)
+        if (InputName != "Error"){
+          pie(main= paste("Proportion of", InputName, "by Gender"),
+              c(TotalFemale, TotalMale), labels = c(paste(TotalFemale,"%", sep=""), 
+                                                    paste(TotalMale,"%", sep="")),
+              col = c("Pink", "Blue"))
+          legend("topleft", c("Female", "Male"), fill = c("Pink", "Blue"), cex=0.8)
+        }else{
+          print("No Records for Given Name")
+        }
       
-      # reference from the reactive function above
-      NameMale <- NameMale()
-      NameFemale <- NameFemale()
-      
-      # get the proportion of names for each gender
-      TotalMale <- 100 * round(sum(NameMale$Count)/ (sum(NameMale$Count) +  sum(NameFemale$Count)),4)
-      TotalFemale <- 100 * round(sum(NameFemale$Count)/ (sum(NameMale$Count) +  sum(NameFemale$Count)),4)
-      
-      # assign a dynamic name for input to the pie chart
-      if (TotalMale != 0){
-        InputName <- as.character(NameMale$Name[1])
-      }else if (TotalFemale != 0){
-        InputName <- as.character(NameFemale$Name[1])
-      }else{
-        InputName <- "Error"
-      }
-      
-       # output pie chart (if allowed)
-      if (InputName != "Error"){
-        pie(main= paste("Proportion of", InputName, "by Gender"),
-            c(TotalFemale, TotalMale), labels = c(paste(TotalFemale,"%", sep=""), 
-                                                  paste(TotalMale,"%", sep="")),
-            col = c("Pink", "Blue"))
-        legend("topleft", c("Female", "Male"), fill = c("Pink", "Blue"), cex=0.8)
-      }else{
-        print("No Records for Given Name")
-      }
     })
     
     # plot for historic name over time
@@ -297,5 +298,14 @@ shinyServer(
       }
     
     })
+    
+    # get the top (up to 10) articles for the specified name
+    output$WikiData = renderDataTable(datatable({
+      WikiName <- WikiListClean[(WikiListClean$Name == tolower(input$name)),]
+      WikiName$Article_Link <- paste0("<a href='",WikiName$Article_Link,"' 
+                           target='_blank'>",WikiName$Article_Link,"</a>")
+      
+      WikiName
+    }, escape = FALSE))
   }
 )
