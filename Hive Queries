@@ -66,3 +66,10 @@ CREATE TABLE wiki_split_name AS
 SELECT c.title, c.word, c.word_count, o.name_lower
 FROM wiki_split c JOIN unique_names_lower o 
 ON (c.word = o.name_lower);
+
+--clean title field in wiki_word_split
+drop table if exists wiki_word_count_clean;
+CREATE TABLE wiki_word_count_clean_1 AS
+SELECT title, total_words,
+regexp_replace(title, '"','') as title_clean
+from wiki_word_count;
