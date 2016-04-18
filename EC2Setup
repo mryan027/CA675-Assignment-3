@@ -1,0 +1,20 @@
+sudo su
+cd /home/rstudio/Dropbox
+cp CombinedNames.csv /srv/shiny-server/child-names
+cp StateList.csv /srv/shiny-server/child-names
+cp UniqueNames.csv /srv/shiny-server/child-names
+cp wiki_prop_limit.csv /srv/shiny-server/child-names
+cp CombinedNames.rds /srv/shiny-server/child-names
+cp StateList.rds /srv/shiny-server/child-names
+cp UniqueNames.rds /srv/shiny-server/child-names
+cp WikiList.rds /srv/shiny-server/child-names
+cp global.R /srv/shiny-server/child-names
+cp server.R /srv/shiny-server/child-names
+cp ui.R /srv/shiny-server/child-names
+cp WikiCleaning.R /srv/shiny-server/child-names
+
+# navigate to application location
+cd /srv/shiny-server/child-names
+
+# navigate to:
+# http://ec2-<PUBLIC_DNS>.eu-west-1.compute.amazonaws.com:3838/child-names
