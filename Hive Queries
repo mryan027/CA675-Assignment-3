@@ -52,17 +52,6 @@ LATERAL VIEW explode (split(lower(content), '\\w+ ')) t1 AS word
 GROUP BY title, word;
 
 
-
---join national names and wiki_split table
-
-DROP TABLE IF EXISTS wiki_split_name;
-CREATE TABLE wiki_split_name AS
-SELECT c.title, c.word, c.word_count, o.name
-FROM wiki_split c JOIN national_names o 
-ON (c.word = o.name);
-FROM wiki_with_headers
-
-
 --Count number of words in each Wikipedia article
 
 DROP TABLE IF EXISTS wiki_word_count;
