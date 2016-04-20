@@ -6,15 +6,25 @@ shinyServer(
     # set-up objects for user input
     fluidRow(
       column(3,
-             selectizeInput("name", "Name", choices = NULL),
+             h4("Instructions"),
+             helpText("Select 1. Name"),
+             helpText("Select 2. Gender"),
+             helpText("Select 3. State"),
+             helpText("Select 4. Year Range"),
+             helpText("Note: Only Upper Year Range Value used in Top/Bottom 10/Top 5 States Searches")
+      ),
+      column(3,
+             selectizeInput("name", "Search for your Name Below",
+                            choices = as.character(UniqueNames$Name),
+                            selected = "Mary"),
              checkboxInput('male', 'Male'),
              checkboxInput('female', 'Female')
       ),
       column(2,
              selectInput("state", "State",as.character(StateList$State),selectize = TRUE)
       ),
-      column(7,
-             sliderInput("year", "Year",min = 1880, max = 2020, step = 1, sep ="",
+      column(5,
+             sliderInput("year", "Year Range",min = 1880, max = 2020, step = 1, sep ="",
                          value = c(1880, 2014), format ="$####")
       )
     ),
