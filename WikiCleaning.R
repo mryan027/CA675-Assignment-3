@@ -11,7 +11,7 @@ WikiListClean <- cbind(as.character(WikiList$word_prop_limit.name_lower)
 
 # set to data frame and assign names
 WikiListClean <- as.data.frame(WikiListClean)
-names(WikiListClean) <- c("Name", "Rank", "Article_Link", "Score")
+names(WikiListClean) <- c("Name", "Rank", "Article_Link", "Score (Name-Article Freq %)")
 
 # tidy titles and setup for URL
 WikiListClean$Article_Link <- gsub(' ', '_', WikiListClean$Article_Link)
