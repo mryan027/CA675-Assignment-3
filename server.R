@@ -29,7 +29,14 @@ shinyServer(
     MaleCheckBox <- reactive(
       input$male
     )
-
+    
+    AllNames <- reactive(
+      CombinedNames[(CombinedNames$State !="National" &
+                       CombinedNames$Year >= input$year[1] &
+                       CombinedNames$Year <= input$year[2]),]
+    )
+    
+    
     # gender balance pie-chart
     output$Neutrality <- renderPlot({
     
@@ -273,23 +280,29 @@ shinyServer(
     
     # plot map showing name popularity in each state over a given time period
     output$MapPlot <- renderPlot({
-  
-      us_state_map <- map_data('state')
+      
       single_name <-CombinedNames[(CombinedNames$Name == input$name & 
                                      CombinedNames$State != "National" &
                                      CombinedNames$Year >= input$year[1] &
                                      CombinedNames$Year <= input$year[2]),]
-      
+    
       if (as.integer(length(single_name[,1]) == 0)){
         plot(c(0, 1), c(0, 1), ann = F, bty = 'n', type = 'n', xaxt = 'n', yaxt = 'n')
         text(x=0.5, y=1, "Insufficient Data for Map")
       }else{
+        AllNames <- AllNames()
+        AllNamesSummed <- aggregate(AllNames$Count, by=list(AllNames$State), FUN=sum)
+        names(AllNamesSummed) <- c("state", "count")
         agg_name <- aggregate(single_name$Count, by=list(single_name$State), FUN=sum)
         names(agg_name) <- c("state", "count")
+        agg_name <- merge(agg_name,AllNamesSummed, by.x='state', by.y = 'state')
+        agg_name <- cbind(agg_name, agg_name$count.x/agg_name$count.y)
         agg_name <- cbind(agg_name, tolower(abbr2state(agg_name$state)))
-        names(agg_name) <- c("state", "count", "region")
+        names(agg_name) <- c("state", "state_count", "national_count", 
+                             "proportion", "region")
         
         if (length(agg_name[,1]) >= 50){
+          us_state_map <- map_data('state')
           map_data <- merge(agg_name, us_state_map, by = 'region')
           map_data <- arrange(map_data, order)
           
@@ -297,8 +310,8 @@ shinyServer(
           names(states) <- c("long", "lat", "State")
           
           p1 <- ggplot(data = map_data, aes(x = long, y = lat, group = group))
-          p1 <- p1 + geom_polygon(aes(fill = cut_number(count/1000, 5)))
-          p1 <- p1 + scale_fill_brewer('Name Count in Thousands', 
+          p1 <- p1 + geom_polygon(aes(fill = cut_number(proportion * 100, 5)))
+          p1 <- p1 + scale_fill_brewer('Proportion of Name per State (%)', 
                                        palette  = 18)
           p1 <- p1 + geom_text(data = states, aes(x = long, y = lat, label = State, group = NULL), size = 3)
           p1 <- p1 + geom_text(data = states, aes(x = -77, y = 48, 
