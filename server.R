@@ -1,8 +1,8 @@
 shinyServer(
   function(input, output, session){
 
-    updateSelectizeInput(session, 'name', 
-                         choices = as.character(UniqueNames$Name), server = TRUE)
+    #updateSelectizeInput(session, 'name', 
+     #                    choices = as.character(UniqueNames$Name), server = TRUE)
     
     # shorten the list of male/females based on user input
     NameFemale <- reactive(
@@ -48,12 +48,17 @@ shinyServer(
           # assign a dynamic name for input to the pie chart
           if (TotalMale != 0){
             InputName <- as.character(NameMale$Name[1])
+            InputYear1 <- input$year[1]
+            InputYear2 <- input$year[2]
           }else{
             InputName <- as.character(NameFemale$Name[1])
+            InputYear1 <- input$year[1]
+            InputYear2 <- input$year[2]
           }
           
           # output pie chart
-            pie(main= paste("Proportion of", InputName, "by Gender"),
+            pie(main= paste("Proportion of", InputName, "by Gender (",
+                            InputYear1, "-", InputYear2, ")"),
                 c(TotalFemale, TotalMale), labels = c(paste(TotalFemale,"%", sep=""), 
                                                       paste(TotalMale,"%", sep="")),
                 col = c("Pink", "Blue"))
@@ -296,6 +301,8 @@ shinyServer(
           p1 <- p1 + scale_fill_brewer('Name Count in Thousands', 
                                        palette  = 18)
           p1 <- p1 + geom_text(data = states, aes(x = long, y = lat, label = State, group = NULL), size = 3)
+          p1 <- p1 + geom_text(data = states, aes(x = -77, y = 48, 
+                                                  label = paste(input$year[1],input$year[2], sep="-"), group = NULL), size = 6)
           p1 <- p1 + theme_bw()
           print(p1)
         }else{
