@@ -83,7 +83,7 @@ ON (c.word = o.name_lower);
 DROP TABLE IF EXISTS wiki_joined;
 CREATE TABLE wiki_joined AS
 SELECT c.title, c.word, c.word_count, c.name_lower, o.total_words
-FROM wiki_word_split c JOIN wiki_word_count o 
+FROM wiki_split_name c JOIN wiki_word_count o 
 ON (c.title = o.title);
 
 
