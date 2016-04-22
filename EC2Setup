@@ -1,5 +1,9 @@
 sudo su
+
+# navigate to Dropbox folder
 cd /home/rstudio/Dropbox
+
+# move files from RStudio workspace to R Shiny Server
 cp CombinedNames.csv /srv/shiny-server/child-names
 cp StateList.csv /srv/shiny-server/child-names
 cp UniqueNames.csv /srv/shiny-server/child-names
